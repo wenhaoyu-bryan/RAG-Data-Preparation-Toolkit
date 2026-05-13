@@ -197,30 +197,6 @@ A: 确保图片格式正确（PNG/JPG），且图片大小合理。表格中的�
 **Q: 如何提高表格识别准确率？**  
 A: 确保表格标题清晰，避免使用过于复杂的嵌套表格。
 
-## 🤝 贡献指南
-
-欢迎贡献代码、报告问题或提出建议！
-
-1. Fork 项目
-2. 创建功能分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 发起 Pull Request
-
-## 📄 许可证
-
-MIT License - 详见 [LICENSE](LICENSE) 文件
-
-## 🙏 致谢
-
-感谢所有为这个项目做出贡献的开发者和用户！
-
----
-
-## 📮 联系方式
-
-如有问题或建议，欢迎提交Issue或Pull Request。
-
 ---
 
 **注意**: 本项目仅包含处理工具和脚本，不包含任何敏感文档或数据。所有SOP文档处理均在本地进行，确保数据安全。

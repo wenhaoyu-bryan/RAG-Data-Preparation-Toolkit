@@ -94,6 +94,6 @@ secrets.json
 !docs/assets/
 docs/assets/*
 !docs/assets/*.png
-!test_sops/
-test_sops/*
-!test_sops/*.docx
+!sample_docs/
+sample_docs/*
+!sample_docs/*.docx

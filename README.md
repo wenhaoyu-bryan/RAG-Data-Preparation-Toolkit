@@ -75,7 +75,7 @@ pip install -r requirements.txt
 streamlit run app/streamlit_app.py
 
 # Process a single document via CLI
-python scripts/process_single.py examples/sample_sop.docx
+python scripts/process_single.py sample_docs/SOP-EQUIP-001_Equipment_Startup_SOP.docx
 
 # Batch process a folder
 python scripts/process_batch.py path/to/documents/ --format csv
@@ -160,7 +160,7 @@ RAG-Data-Preparation-Toolkit/
 │   ├── sample_output.jsonl           # Example JSONL output
 │   ├── sample_dify_export.csv        # Example Dify-compatible export
 │   └── sample_eval_samples.csv       # Example eval samples
-├── test_sops/
+├── sample_docs/
 │   └── SOP-EQUIP-001_Equipment_Startup_SOP.docx  # Synthetic test document
 ├── docs/
 │   ├── assets/

@@ -1,205 +1,191 @@
-# SOP Navigator - 智能SOP文档处理系统
+# RAG Data Preparation Toolkit
 
-一个强大的智能SOP（标准操作程序）知识库预处理系统，将Word格式的SOP文档转换为适合RAG（检索增强生成）系统的高质量结构化数据。
+A document preprocessing pipeline for building RAG-ready knowledge bases.
 
-## 🎯 项目目标
+## Why This Project Exists
 
-将复杂的SOP文档转换为结构化的知识块，为Dify等RAG系统提供高质量的数据输入，实现智能化的SOP查询和检索。
+Most RAG applications fail not because of the model, but because of the data. Source documents are messy, poorly chunked, and lack the metadata that retrieval systems need. Enterprise documents — SOPs, work instructions, maintenance guides, policy manuals — are written for humans, not for vector databases. They contain nested tables, inline images, multi-level headings, and inconsistent formatting that generic text splitters cannot handle.
 
-## ✨ 核心功能
+This toolkit solves the upstream problem: turning unstructured business and industrial documents into structured, section-aware, metadata-rich chunks that RAG systems can actually use.
 
-### 🌐 Web界面 (`streamlit_sop_ui.py`) - 🆕 推荐使用
-- **友好的图形界面**: 基于Streamlit的现代化Web界面
-- **拖拽上传**: 支持单个/批量Word文档上传
-- **ZIP批量处理**: 支持上传ZIP压缩包批量处理文档
-- **实时进度**: 可视化处理进度和状态反馈
-- **在线预览**: 图片预览和文件统计
-- **一键下载**: CSV文件和图片批量下载（ZIP格式）
-- **处理历史**: 查看和管理历史处理记录
-- **文件验证**: 自动验证文件大小和格式
+## What It Does
 
-### 🔧 命令行处理 (`process_sop_with_images.py`)
-- **一站式处理**: 直接从Word文档生成精炼的CSV文件
-- **智能标题识别**: 三级优先序检测（样式→数字编号→关键词）
-- **精确表格归属**: 根据表格内容特征自动识别归属章节
-- **图片提取**: 自动提取文档中的图片并关联文本
-- **上下文追踪**: 维护完整的章节路径和层级关系
-- **动态标题生成**: 为表格生成准确的动态标题
-- **内容合并优化**: 标题和内容正确合并，避免过度拆分
-- **表格图片支持**: 支持提取表格内嵌的图片
+The toolkit converts unstructured business and industrial documents into structured chunks with:
 
-### 📦 批量处理 (`batch_process_annotated_docs.py`)
-- **批量处理**: 自动处理指定文件夹中的所有文档
-- **统一输出**: 所有CSV文件输出到"output"文件夹
-- **进度跟踪**: 显示处理进度和结果统计
-- **错误处理**: 自动跳过无法处理的文档
+- **Section paths** — full heading hierarchy preserved (e.g. "3. Safety > 3.1 PPE Requirements")
+- **Clean text chunks** — content split at section boundaries, not arbitrary token limits
+- **Table content** — Word tables converted to Markdown, attributed to the correct section
+- **Image references** — inline and table images extracted with caption association
+- **Metadata** — document ID, document name, source file, chunk type
+- **Exportable files** — CSV for direct ingestion into knowledge base systems
 
-## 📁 项目结构
+## Current Implemented Scope
 
-```
-SOP-Navigator/
-├── streamlit_sop_ui.py         # 🌐 Web界面（推荐使用）
-├── process_sop_with_images.py  # 🔧 命令行处理脚本
-├── batch_process_annotated_docs.py  # 📦 批量处理脚本
-├── output/                     # 📄 输出CSV文件目录
-├── streamlit_output/           # 📄 Web界面输出目录
-├── sop_images/                 # 🖼️ 提取的图片文件目录
-├── .gitignore                  # Git忽略文件
-├── README.md                   # 项目说明
-├── requirements.txt            # 依赖包列表
-└── LICENSE                     # 许可证文件
-```
+The current version focuses on **DOCX documents**, especially **SOPs and work instructions**. This is the first use case — the architecture supports adding more document types later.
 
-## 🛠️ 技术栈
+## Pipeline
 
-- **Python 3.9+**
-- **python-docx**: Word文档解析
-- **pandas**: 数据处理和CSV生成
-- **streamlit**: Web界面框架
-- **PIL/Pillow**: 图片处理
-- **正则表达式**: 文本模式匹配
+![RAG Data Preparation Toolkit Pipeline](docs/assets/mermaid-diagram.png)
 
-## 📦 安装依赖
+Raw documents go through section-aware parsing, text/table/image extraction, metadata tagging, and export — producing structured chunks ready for any RAG knowledge base.
+
+## Features
+
+### Implemented
+
+- DOCX document parsing
+- Section-aware heading detection (Word styles, numeric numbering, keyword matching)
+- Section-aware chunk generation (content split at heading boundaries)
+- Table extraction (Word tables converted to Markdown)
+- Image extraction with caption matching (inline and table-embedded)
+- Batch processing (folder of .docx files)
+- Streamlit upload UI (drag-and-drop, ZIP support, progress tracking)
+- CSV export (4-column: document_id, document_name, section_path, chunk_text)
+- JSONL export (text + metadata per line)
+- Dify-compatible CSV export
+
+### Roadmap
+
+- PDF input support
+- HTML / Markdown input support
+- LangChain Document loader output format
+- LlamaIndex Document loader output format
+- Chunk size and overlap configuration
+- Deduplication across chunks
+- Retrieval quality dashboard
+- REST API endpoint
+- Docker deployment
+
+## Use Cases
+
+- **Industrial SOP knowledge base** — convert factory SOPs into searchable chunks for operator assistance
+- **Maintenance guide assistant** — power a chatbot that answers equipment maintenance questions
+- **Internal policy knowledge base** — make HR/policy documents queryable by employees
+- **Training material search** — enable new hires to search training documents by topic
+- **AI agent knowledge preparation** — prepare structured context for autonomous agents
+- **AI PM RAG prototype preparation** — quickly build a working RAG demo from real documents
+
+## Quick Start
 
 ```bash
-# 安装所有依赖
+# Install dependencies
 pip install -r requirements.txt
 
-# 或手动安装核心依赖
-pip install python-docx pandas streamlit
+# Launch Streamlit UI
+streamlit run app/streamlit_app.py
+
+# Process a single document via CLI
+python scripts/process_single.py examples/sample_sop.docx
+
+# Batch process a folder
+python scripts/process_batch.py path/to/documents/ --format csv
 ```
 
-## 🚀 使用方法
+## Screenshots
 
-### 方式1: Web界面（推荐）⭐
+### Streamlit App — Main Page
 
-```bash
-# 启动Web界面
-streamlit run streamlit_sop_ui.py
+![Streamlit main page](docs/assets/screenshot_Streamlit_Page.png)
 
-# 或指定配置启动
-streamlit run streamlit_sop_ui.py --server.headless true
+The Streamlit interface provides a step-by-step workflow: upload documents, configure export format, process, preview, and download. All processing runs locally — no data leaves your machine.
+
+### Document Input
+
+![SOP document input](docs/assets/screenshot_sop_input.png)
+
+Upload one or more `.docx` files, or a ZIP archive containing multiple documents. The toolkit detects Word documents automatically and validates file size before processing.
+
+### Processing
+
+![Upload and processing](docs/assets/screenshot_sop_upload.png)
+
+During processing, the pipeline extracts headings, tables, and images from each document. A progress bar shows real-time status. Summary metrics (documents processed, chunks generated, tables extracted) update as each file completes.
+
+### Structured Output
+
+![Processed output](docs/assets/screenshot_sop_output.png)
+
+After processing, each chunk carries its full section path, chunk type (text/table/image), and metadata. Tables are converted to Markdown. The preview tab lets you filter by document, section, or chunk type before exporting.
+
+## Output Schema
+
+Each chunk produced by the pipeline contains:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `document_id` | string | Document identifier extracted from filename |
+| `document_name` | string | Document name extracted from filename |
+| `section_path` | string | Full heading hierarchy (e.g. "3. Safety > 3.1 PPE Requirements") |
+| `chunk_text` | string | Content: text, Markdown tables, and image references |
+| `chunk_type` | string | "text", "table", or "image" |
+| `source_file` | string | Original filename |
+| `image_refs` | string | Referenced image filenames (if any) |
+| `table_refs` | string | Referenced table content (if any) |
+
+See [docs/rag-data-contract.md](docs/rag-data-contract.md) for the full data contract.
+
+## AI PM Portfolio Notes
+
+This project demonstrates:
+
+- **RAG data readiness thinking** — understanding that retrieval quality depends on data quality, not just the embedding model
+- **Enterprise document understanding** — handling real-world complexity: nested tables, inconsistent heading styles, inline images, multi-language content
+- **Productized data pipeline design** — not a notebook script; a modular, testable toolkit with CLI, UI, and export formats
+- **Metadata-first knowledge base design** — section paths and chunk types enable filtered retrieval, not just flat similarity search
+- **No-code tool design for business users** — Streamlit UI lets non-technical users upload documents and download structured output without touching code
+
+## Project Structure
+
+```
+RAG-Data-Preparation-Toolkit/
+├── app/
+│   └── streamlit_app.py              # Streamlit web UI
+├── rag_data_toolkit/
+│   ├── __init__.py
+│   ├── document_loader.py            # File validation and .docx loading
+│   ├── docx_parser.py                # Block iteration, paragraph section maps
+│   ├── section_parser.py             # Heading detection (3-tier priority)
+│   ├── chunker.py                    # Main orchestrator — chunk generation
+│   ├── table_extractor.py            # Word table to Markdown, section attribution
+│   ├── image_extractor.py            # Image extraction with caption matching
+│   ├── metadata_builder.py           # document_id / document_name from filename
+│   ├── eval_generator.py             # Synthetic QA samples for RAG evaluation
+│   └── exporters.py                  # CSV, JSONL, Dify export
+├── scripts/
+│   ├── process_single.py             # CLI: single document
+│   └── process_batch.py              # CLI: batch folder
+├── examples/
+│   ├── README.md                     # Demo workflow and output explanations
+│   ├── sample_output.csv             # Example CSV output
+│   ├── sample_output.jsonl           # Example JSONL output
+│   ├── sample_dify_export.csv        # Example Dify-compatible export
+│   └── sample_eval_samples.csv       # Example eval samples
+├── test_sops/
+│   └── SOP-EQUIP-001_Equipment_Startup_SOP.docx  # Synthetic test document
+├── docs/
+│   ├── assets/
+│   │   ├── mermaid-diagram.png       # Pipeline diagram
+│   │   └── screenshot_*.png          # UI screenshots
+│   ├── product-brief.md
+│   ├── architecture.md
+│   ├── rag-data-contract.md
+│   ├── roadmap.md
+│   └── ai-pm-portfolio-notes.md
+├── tests/
+│   └── test_pipeline_smoke.py
+├── README.md
+├── CLAUDE.md
+├── requirements.txt
+└── LICENSE
 ```
 
-然后在浏览器中访问 `http://localhost:8501`
+## Requirements
 
-**Web界面功能：**
-1. 📁 **文档上传**: 拖拽上传Word文档或ZIP压缩包
-2. 🚀 **一键处理**: 点击按钮自动处理所有文档
-3. 📊 **实时反馈**: 查看处理进度和结果统计
-4. ⬇️ **结果下载**: 下载CSV文件和提取的图片
-5. 📦 **批量下载**: 一键下载所有图片（ZIP格式）
-6. 📜 **历史记录**: 查看和管理处理历史
+- Python 3.9+
+- python-docx, pandas, streamlit
 
-### 方式2: 命令行处理
+## Security
 
-```bash
-# 处理单个文档
-python process_sop_with_images.py "your_sop_document.docx"
-
-# 批量处理文件夹中的所有文档
-python batch_process_annotated_docs.py
-```
-
-### 输出文件说明
-
-- **CSV文件**: `文档名_processed_with_images.csv` - 完整的结构化数据
-- **图片文件**: 自动保存到`sop_images/`文件夹，命名格式为`文档名_image_id_xxx.png`
-- **Web界面输出**: CSV保存到`streamlit_output/`，图片保存到`sop_images/`
-
-## 💡 核心特性
-
-### 🔍 智能标题识别
-- ✅ 支持Word标准标题样式（Heading 1-10）
-- ✅ 支持数字编号格式（1.1、2.1.1等）
-- ✅ 支持括号编号格式（1)、2)等）
-- ✅ 支持关键词匹配（目的、适用范围等）
-- ✅ 三级优先序：样式 → 数字编号 → 关键词
-
-### 🖼️ 图片处理
-- ✅ 自动提取Word文档中的所有图片
-- ✅ 支持表格内嵌图片提取
-- ✅ 自动提取图片标题和说明文字
-- ✅ 图片与章节智能关联
-- ✅ 重命名为唯一标识符
-- ✅ 支持PNG、JPG等多种格式
-
-### 📊 表格转换与归属
-- ✅ 自动识别Word表格
-- ✅ 转换为标准Markdown格式
-- ✅ 智能识别表格归属章节
-- ✅ 动态生成准确的表格标题
-- ✅ 保持表格结构完整性
-- ✅ 支持复杂表格布局和嵌套
-
-### 📝 文本块优化
-- ✅ 根据标题自动拆分知识块
-- ✅ 标题和内容正确合并
-- ✅ 标准化列表格式
-- ✅ 清理多余格式字符
-- ✅ 优化检索粒度
-- ✅ 避免过度拆分
-
-## 📋 输出CSV格式
-
-生成的CSV文件包含以下字段：
-
-| 字段名 | 说明 |
-|--------|------|
-| `sop_id` | SOP文档ID |
-| `sop_name` | SOP文档名称 |
-| `section_path` | 章节完整路径（如"6.操作流程 > 6.1 流程图"） |
-| `chunk` | 知识块内容（包含文本、表格、图片引用） |
-
-## 🎯 适用场景
-
-- **企业知识管理**: SOP文档数字化和标准化
-- **RAG系统**: 为AI问答提供高质量数据源
-- **文档自动化**: 批量处理和转换SOP文档
-- **知识检索**: 提升文档搜索精度和效率
-- **培训系统**: 构建智能培训知识库
-- **合规管理**: 标准化操作流程文档
-
-## 📊 性能指标
-
-- **处理速度**: 平均每页文档<1秒
-- **准确率**: 标题识别>95%，表格归属>90%
-- **完整性**: 图片和表格100%保留
-- **批量处理**: 支持100+文档同时处理
-- **Web界面**: 支持最大200MB单文件上传
-
-## 🔒 安全考虑
-
-- ✅ 本地化部署，数据不外传
-- ✅ 自动忽略敏感文档
-- ✅ 仅上传处理脚本和工具
-- ✅ 保护商业机密信息
-- ✅ 支持私有化部署
-
-## 🐛 常见问题
-
-### Web界面相关
-
-**Q: 如何解决403错误？**  
-A: 尝试刷新页面或使用较小的文件。确保单个文件不超过200MB。
-
-**Q: 处理超时怎么办？**  
-A: 大文件需要更长时间，请耐心等待。可以考虑分批处理。
-
-**Q: 如何清理输出目录？**  
-A: 使用"清除处理历史"按钮或手动删除`streamlit_output`和`sop_images`目录。
-
-### 处理相关
-
-**Q: 为什么有些图片没有提取？**  
-A: 确保图片格式正确（PNG/JPG），且图片大小合理。表格中的图片需要正确标注。
-
-**Q: 如何提高表格识别准确率？**  
-A: 确保表格标题清晰，避免使用过于复杂的嵌套表格。
-
----
-
-**注意**: 本项目仅包含处理工具和脚本，不包含任何敏感文档或数据。所有SOP文档处理均在本地进行，确保数据安全。
-
-**版本**: v2.0.0  
-**最后更新**: 2025-10-10
+- All processing is local — no data leaves your machine
+- No real company documents are included in this repository
+- `.gitignore` blocks `.docx`, images, and output files

@@ -89,3 +89,11 @@ secrets.json
 # 备份文件
 *.bak
 *.backup
+
+# Allow demo assets and test documents (must be last to override rules above)
+!docs/assets/
+docs/assets/*
+!docs/assets/*.png
+!test_sops/
+test_sops/*
+!test_sops/*.docx

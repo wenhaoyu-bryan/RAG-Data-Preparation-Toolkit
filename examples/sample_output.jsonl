@@ -1,0 +1,3 @@
+{"text": "This is a sample SOP document for demonstration purposes.", "metadata": {"document_id": "DOC.001", "document_name": "Sample SOP", "section_path": "1.Purpose", "chunk_type": "text", "source_file": "sample_sop.docx"}}
+{"text": "Applies to all warehouse operations staff.", "metadata": {"document_id": "DOC.001", "document_name": "Sample SOP", "section_path": "2.Scope", "chunk_type": "text", "source_file": "sample_sop.docx"}}
+{"text": "| Item | Requirement |\n| --- | --- |\n| PPE | Hard hat, safety boots |\n| Training | Forklift certification |", "metadata": {"document_id": "DOC.001", "document_name": "Sample SOP", "section_path": "3.Safety Requirements", "chunk_type": "table", "source_file": "sample_sop.docx"}}
